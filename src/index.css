@@ -2,41 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* LuxeBite Design System - Premium Food Ordering Experience
+All colors MUST be HSL. Luxury gold and dark theme.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* LuxeBite Premium Colors */
+    --background: 20 14% 8%;
+    --foreground: 45 100% 85%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 20 14% 10%;
+    --card-foreground: 45 100% 85%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 20 14% 12%;
+    --popover-foreground: 45 100% 85%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Luxury Gold Primary */
+    --primary: 45 100% 65%;
+    --primary-foreground: 20 14% 8%;
+    --primary-glow: 45 100% 75%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Premium Secondary */
+    --secondary: 20 14% 15%;
+    --secondary-foreground: 45 100% 85%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Elegant Muted */
+    --muted: 20 10% 12%;
+    --muted-foreground: 45 30% 60%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent Colors */
+    --accent: 45 80% 55%;
+    --accent-foreground: 20 14% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Error States */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 100% 85%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Borders & Inputs */
+    --border: 20 10% 20%;
+    --input: 20 10% 15%;
+    --ring: 45 100% 65%;
 
-    --radius: 0.5rem;
+    /* Food Category Colors */
+    --veg: 120 100% 35%;
+    --non-veg: 0 100% 50%;
+    --fast-food: 25 100% 50%;
+
+    /* Success & Status */
+    --success: 120 100% 35%;
+    --warning: 45 100% 50%;
+    --info: 210 100% 60%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(20 14% 12%));
+    --gradient-hero: linear-gradient(135deg, hsl(20 14% 8%), hsl(20 14% 12%));
+
+    /* Shadows */
+    --shadow-luxury: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+    --shadow-card: 0 8px 25px -8px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.4);
+
+    /* Animation Timings */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -55,42 +87,14 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  /* Light theme for special cases - LuxeBite is primarily dark */
+  .light {
+    --background: 45 50% 95%;
+    --foreground: 20 14% 8%;
+    --card: 45 50% 98%;
+    --card-foreground: 20 14% 8%;
+    --primary: 45 100% 45%;
+    --border: 20 10% 85%;
   }
 }
 
@@ -100,6 +104,56 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--primary) / 0.08) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+
+  .luxe-text-gradient {
+    @apply bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent;
+  }
+
+  .luxe-card {
+    @apply bg-gradient-to-br from-card to-card border border-border/50 rounded-lg shadow-[var(--shadow-card)] backdrop-blur-sm;
+  }
+
+  .luxe-button-primary {
+    @apply bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold rounded-lg px-6 py-3 shadow-[var(--shadow-luxury)] transition-all duration-300 hover:scale-105 hover:shadow-[var(--shadow-glow)] active:scale-95;
+  }
+
+  .luxe-button-secondary {
+    @apply bg-secondary text-secondary-foreground border border-border font-medium rounded-lg px-6 py-3 transition-all duration-300 hover:bg-secondary/80 hover:border-primary/50;
+  }
+
+  .luxe-input {
+    @apply bg-input/50 border border-border rounded-lg px-4 py-3 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 backdrop-blur-sm;
+  }
+
+  .food-card {
+    @apply luxe-card p-4 transition-all duration-300 hover:scale-105 hover:shadow-[var(--shadow-glow)] cursor-pointer;
+  }
+
+  .price-tag {
+    @apply luxe-text-gradient font-bold text-lg;
+  }
+
+  .category-badge {
+    @apply px-3 py-1 rounded-full text-xs font-medium border;
+  }
+
+  .veg-badge {
+    @apply category-badge bg-green-500/20 text-green-400 border-green-500/30;
+  }
+
+  .non-veg-badge {
+    @apply category-badge bg-red-500/20 text-red-400 border-red-500/30;
+  }
+
+  .fast-food-badge {
+    @apply category-badge bg-orange-500/20 text-orange-400 border-orange-500/30;
   }
 }
