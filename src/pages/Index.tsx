@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Filter, ChevronDown } from 'lucide-react';
 import { FoodItem, CartItem } from '../types/food';
+import { Order } from '../types/user';
 import { foodItems, sortOptions, categoryFilters } from '../data/foodData';
+import { useAuth } from '../hooks/useAuth';
 import Header from '../components/Header';
 import FoodCard from '../components/FoodCard';
 import CartModal from '../components/CartModal';
@@ -9,9 +11,15 @@ import PaymentModal from '../components/PaymentModal';
 import OrderConfirmation from '../components/OrderConfirmation';
 import LocationModal from '../components/LocationModal';
 import AboutSection from '../components/AboutSection';
+import AuthModal from '../components/AuthModal';
+import UserAccount from '../components/UserAccount';
+import OrderHistory from '../components/OrderHistory';
+import OrderTracking from '../components/OrderTracking';
 import { useToast } from '../hooks/use-toast';
 
 const Index = () => {
+  const { user, isLoggedIn } = useAuth();
+  
   // State management
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,7 +32,12 @@ const Index = () => {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isOrderConfirmOpen, setIsOrderConfirmOpen] = useState(false);
   const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
+  const [isOrderTrackingOpen, setIsOrderTrackingOpen] = useState(false);
   const [selectedItemForOrder, setSelectedItemForOrder] = useState<FoodItem | null>(null);
+  const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
   
   const { toast } = useToast();
 
@@ -128,6 +141,49 @@ const Index = () => {
   };
 
   const handleOrderConfirm = (paymentMethod: string) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to place an order",
+        variant: "destructive"
+      });
+      setIsAuthOpen(true);
+      return;
+    }
+
+    const orderItems = selectedItemForOrder 
+      ? [{ 
+          id: selectedItemForOrder.id, 
+          name: selectedItemForOrder.name, 
+          quantity: 1, 
+          price: selectedItemForOrder.price 
+        }]
+      : cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        }));
+
+    const totalAmount = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    const newOrder: Order = {
+      id: `ORD${Date.now()}`,
+      userId: user.id,
+      items: orderItems,
+      totalAmount,
+      status: 'preparing',
+      paymentMethod,
+      deliveryAddress: user.address,
+      orderDate: new Date(),
+      estimatedDelivery: new Date(Date.now() + 30 * 60 * 1000), // 30 minutes
+    };
+
+    // Save order to localStorage
+    const existingOrders = JSON.parse(localStorage.getItem(`luxebite_orders_${user.id}`) || '[]');
+    existingOrders.unshift(newOrder);
+    localStorage.setItem(`luxebite_orders_${user.id}`, JSON.stringify(existingOrders));
+
     setIsPaymentOpen(false);
     setIsOrderConfirmOpen(true);
     
@@ -143,20 +199,40 @@ const Index = () => {
     });
   };
 
+  const handleAccountClick = () => {
+    if (isLoggedIn) {
+      setIsAccountOpen(true);
+    } else {
+      setIsAuthOpen(true);
+    }
+  };
+
+  const handleTrackOrder = (order: Order) => {
+    setTrackingOrder(order);
+    setIsOrderHistoryOpen(false);
+    setIsOrderTrackingOpen(true);
+  };
+
+  const handleOrderHistoryOpen = () => {
+    setIsAccountOpen(false);
+    setIsOrderHistoryOpen(true);
+  };
+
   const handleOrderConfirmClose = () => {
     setIsOrderConfirmOpen(false);
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Header
-        cartItems={cartItems}
-        onCartClick={() => setIsCartOpen(true)}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        currentLocation={currentLocation}
-        onLocationClick={() => setIsLocationOpen(true)}
-      />
+        <Header
+          cartItems={cartItems}
+          onCartClick={() => setIsCartOpen(true)}
+          onAccountClick={handleAccountClick}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          currentLocation={currentLocation}
+          onLocationClick={() => setIsLocationOpen(true)}
+        />
 
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
@@ -287,6 +363,29 @@ const Index = () => {
         onClose={() => setIsLocationOpen(false)}
         currentLocation={currentLocation}
         onLocationSelect={setCurrentLocation}
+      />
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
+
+      <UserAccount
+        isOpen={isAccountOpen}
+        onClose={() => setIsAccountOpen(false)}
+        onOrderHistory={handleOrderHistoryOpen}
+      />
+
+      <OrderHistory
+        isOpen={isOrderHistoryOpen}
+        onClose={() => setIsOrderHistoryOpen(false)}
+        onTrackOrder={handleTrackOrder}
+      />
+
+      <OrderTracking
+        isOpen={isOrderTrackingOpen}
+        onClose={() => setIsOrderTrackingOpen(false)}
+        order={trackingOrder}
       />
     </div>
   );
