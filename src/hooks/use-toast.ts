@@ -1,6 +1,13 @@
 import * as React from "react";
 
-import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
+// Define types locally to avoid circular dependencies
+type ToastActionElement = React.ReactElement;
+type ToastProps = {
+  variant?: "default" | "destructive";
+  className?: string;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
+};
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
@@ -150,7 +157,7 @@ function toast({ ...props }: Toast) {
       ...props,
       id,
       open: true,
-      onOpenChange: (open) => {
+      onOpenChange: (open: boolean) => {
         if (!open) dismiss();
       },
     },
