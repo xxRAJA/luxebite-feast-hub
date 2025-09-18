@@ -22,11 +22,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const { login, register } = useAuth();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (isLogin) {
-      if (login(formData.email, formData.password)) {
+      const success = await login(formData.email, formData.password);
+      if (success) {
         toast({ title: "Welcome back!", description: "Successfully logged in to LuxeBite" });
         onClose();
       } else {
@@ -46,16 +47,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         return;
       }
       
-      if (register({
+      const success = await register({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
         address: formData.address
-      })) {
+      });
+      
+      if (success) {
         toast({ 
           title: "Account created!", 
-          description: "Welcome to LuxeBite family" 
+          description: "Welcome to LuxeBite family! Please check your email to confirm your account." 
         });
         onClose();
       } else {

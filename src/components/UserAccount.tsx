@@ -20,14 +20,22 @@ const UserAccount: React.FC<UserAccountProps> = ({ isOpen, onClose, onOrderHisto
     address: user?.address || ''
   });
 
-  const handleSave = () => {
-    updateUser(formData);
-    setIsEditing(false);
-    toast({ title: "Profile updated!", description: "Your information has been saved successfully" });
+  const handleSave = async () => {
+    const success = await updateUser(formData);
+    if (success) {
+      setIsEditing(false);
+      toast({ title: "Profile updated!", description: "Your information has been saved successfully" });
+    } else {
+      toast({ 
+        title: "Update failed", 
+        description: "Unable to update profile. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     onClose();
     toast({ title: "Logged out", description: "You have been successfully logged out" });
   };

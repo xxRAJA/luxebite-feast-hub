@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User, AuthState } from '../types/user';
+import { supabase } from '../integrations/supabase/client';
 
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -8,83 +9,103 @@ export const useAuth = () => {
   });
 
   useEffect(() => {
-    // Check for stored user on mount
-    const storedUser = localStorage.getItem('luxebite_user');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setAuthState({ user, isLoggedIn: true });
-      } catch (error) {
-        localStorage.removeItem('luxebite_user');
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setAuthState({ 
+          user: {
+            id: session.user.id,
+            name: session.user.user_metadata?.name || session.user.email || '',
+            email: session.user.email || '',
+            phone: session.user.user_metadata?.phone || '',
+            address: session.user.user_metadata?.address || '',
+            createdAt: new Date(session.user.created_at)
+          }, 
+          isLoggedIn: true 
+        });
       }
-    }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          setAuthState({ 
+            user: {
+              id: session.user.id,
+              name: session.user.user_metadata?.name || session.user.email || '',
+              email: session.user.email || '',
+              phone: session.user.user_metadata?.phone || '',
+              address: session.user.user_metadata?.address || '',
+              createdAt: new Date(session.user.created_at)
+            }, 
+            isLoggedIn: true 
+          });
+        } else {
+          setAuthState({ user: null, isLoggedIn: false });
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = (email: string, password: string): boolean => {
-    // Mock login - check if user exists in localStorage
-    const users = JSON.parse(localStorage.getItem('luxebite_users') || '[]');
-    const user = users.find((u: any) => u.email === email && u.password === password);
-    
-    if (user) {
-      const { password: _, ...userWithoutPassword } = user;
-      setAuthState({ user: userWithoutPassword, isLoggedIn: true });
-      localStorage.setItem('luxebite_user', JSON.stringify(userWithoutPassword));
-      return true;
-    }
-    return false;
-  };
-
-  const register = (userData: {
-    name: string;
-    email: string;
-    phone: string;
-    password: string;
-    address: string;
-  }): boolean => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const users = JSON.parse(localStorage.getItem('luxebite_users') || '[]');
-      
-      // Check if user already exists
-      if (users.some((u: any) => u.email === userData.email)) {
-        return false;
-      }
-
-      const newUser: User & { password: string } = {
-        id: Date.now().toString(),
-        ...userData,
-        createdAt: new Date(),
-      };
-
-      users.push(newUser);
-      localStorage.setItem('luxebite_users', JSON.stringify(users));
-
-      const { password, ...userWithoutPassword } = newUser;
-      setAuthState({ user: userWithoutPassword, isLoggedIn: true });
-      localStorage.setItem('luxebite_user', JSON.stringify(userWithoutPassword));
-      return true;
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return !error;
     } catch (error) {
       return false;
     }
   };
 
-  const logout = () => {
-    setAuthState({ user: null, isLoggedIn: false });
-    localStorage.removeItem('luxebite_user');
+  const register = async (userData: {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    address: string;
+  }): Promise<boolean> => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            phone: userData.phone,
+            address: userData.address,
+          },
+        },
+      });
+      return !error;
+    } catch (error) {
+      return false;
+    }
   };
 
-  const updateUser = (updates: Partial<User>) => {
-    if (authState.user) {
-      const updatedUser = { ...authState.user, ...updates };
-      setAuthState({ user: updatedUser, isLoggedIn: true });
-      localStorage.setItem('luxebite_user', JSON.stringify(updatedUser));
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setAuthState({ user: null, isLoggedIn: false });
+  };
+
+  const updateUser = async (updates: Partial<User>): Promise<boolean> => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: updates,
+      });
       
-      // Update in users array too
-      const users = JSON.parse(localStorage.getItem('luxebite_users') || '[]');
-      const userIndex = users.findIndex((u: any) => u.id === updatedUser.id);
-      if (userIndex !== -1) {
-        users[userIndex] = { ...users[userIndex], ...updates };
-        localStorage.setItem('luxebite_users', JSON.stringify(users));
+      if (!error && authState.user) {
+        const updatedUser = { ...authState.user, ...updates };
+        setAuthState({ user: updatedUser, isLoggedIn: true });
+        return true;
       }
+      return false;
+    } catch (error) {
+      return false;
     }
   };
 
