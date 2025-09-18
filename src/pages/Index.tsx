@@ -18,36 +18,6 @@ import OrderTracking from '../components/OrderTracking';
 import { useToast } from '../hooks/use-toast';
 import "../App.css";
 
-const deliveryOptions = [
-  "Standard Delivery",
-  "Express Delivery",
-  "Pickup",
-  "Schedule Delivery",
-  "Contactless Delivery",
-];
-
-const menuOptions = [
-  "Indian Cuisine",
-  "International Cuisine",
-  "Vegan Specials",
-  "Desserts",
-  "Beverages",
-  "Combo Meals",
-  "Chef's Specials",
-];
-
-const orderHistorySample = [
-  { id: 1, item: "Paneer Tikka", date: "2025-09-15", status: "Delivered" },
-  { id: 2, item: "Sushi Platter", date: "2025-09-14", status: "Delivered" },
-  { id: 3, item: "Vegan Burger", date: "2025-09-13", status: "Cancelled" },
-];
-
-const trackingSample = {
-  orderId: "LB20250917",
-  status: "Out for Delivery",
-  eta: "15 mins",
-};
-
 const Index = () => {
   const { user, isLoggedIn } = useAuth();
   
@@ -253,11 +223,6 @@ const Index = () => {
     setIsOrderConfirmOpen(false);
   };
 
-  const [selectedDelivery, setSelectedDelivery] = useState(deliveryOptions[0]);
-  const [selectedMenu, setSelectedMenu] = useState(menuOptions[0]);
-  const [orderHistory] = useState(orderHistorySample);
-  const [tracking] = useState(trackingSample);
-
   return (
     <div className="min-h-screen bg-background">
         <Header
@@ -424,65 +389,6 @@ const Index = () => {
         order={trackingOrder}
       />
 
-      {/* Left Sidebar: Delivery Options */}
-      <aside className="sidebar left">
-        <h3>Delivery Options</h3>
-        <ul>
-          {deliveryOptions.map((opt) => (
-            <li key={opt}>
-              <button
-                className={selectedDelivery === opt ? "active" : ""}
-                onClick={() => setSelectedDelivery(opt)}
-              >
-                {opt}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </aside>
-
-      {/* Main Content */}
-      <main>
-        <h1>LuxeBite Premium Food Delivery</h1>
-        <nav>
-          {menuOptions.map((opt) => (
-            <button
-              key={opt}
-              className={selectedMenu === opt ? "active" : ""}
-              onClick={() => setSelectedMenu(opt)}
-            >
-              {opt}
-            </button>
-          ))}
-        </nav>
-        <section>
-          <h2>{selectedMenu}</h2>
-          <p>Menu items for {selectedMenu} will appear here.</p>
-          <button onClick={() => alert("Order placed!")}>Order Now</button>
-          <button onClick={() => alert("More options coming soon!")}>More Options</button>
-        </section>
-      </main>
-
-      {/* Right Sidebar: Tracking (top) & History (bottom) */}
-      <aside className="sidebar right">
-        <div className="tracking">
-          <h3>Track Your Order</h3>
-          <p>Order ID: {tracking.orderId}</p>
-          <p>Status: {tracking.status}</p>
-          <p>ETA: {tracking.eta}</p>
-          <button onClick={() => alert("Tracking details refreshed!")}>Refresh</button>
-        </div>
-        <div className="history">
-          <h3>Order History</h3>
-          <ul>
-            {orderHistory.map((order) => (
-              <li key={order.id}>
-                {order.item} - {order.date} ({order.status})
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
     </div>
   );
 };
